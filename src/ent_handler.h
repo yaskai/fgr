@@ -44,7 +44,6 @@ void ReserveDataAsteroid(EntHandler *handler, Entity *ent);
 void AsteroidSpawn(EntHandler *handler, Vector2 position);
 void FishSpawn(EntHandler *handler, Vector2 position);
 
-void FindPlayerOrbit(EntHandler *handler, float dt);
-void PlayerOrbitCast(EntHandler *handler);
+void PlayerSetHandler(EntHandler *handler);
 
 #endif

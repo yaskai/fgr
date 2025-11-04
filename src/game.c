@@ -149,6 +149,7 @@ void OptionsScreenDraw(Game *game, uint8_t flags) {
 void MainStart(Game *game) {
 	EntMake(&game->ent_handler, ENT_PLAYER);
 	game->ent_handler.ents[0].position = (Vector2){-90, 100};
+	PlayerSetHandler(&game->ent_handler);
 
 	PlayerData *p = game->ent_handler.ents[0].data;
 	p->input = &game->input_state;

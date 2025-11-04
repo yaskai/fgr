@@ -23,22 +23,6 @@ enum ENT_TYPE {
 	ENT_NPC
 };
 
-typedef struct  {
-	float angle;
-	float height;
-	float body_radius;
-	float angular_vel;
-	float next_angle;
-	float tang_vel;
-	float rad_vel;
-	Vector2 ent_vel;
-	Vector2 orbit_center;
-	Vector2 initial_pos;
-	Vector2 edge;
-	Vector2 dir;
-	Vector2 curr_pos;
-} OrbitData;
-
 // *** BASE ENTITY STRUCT ***	
 //
 typedef struct Entity {
@@ -60,9 +44,6 @@ typedef struct Entity {
 	Vector2 pull_point_prev;
 	Vector2 pull_point_next;
 	Vector2 pull_point;
-
-	OrbitData orbit_data;
-	OrbitData orbit_data_prev;
 	
 	// Primary entity function pointers:
 	// functions specified on EntInit() 
@@ -82,12 +63,6 @@ void EntInit(Entity *ent, uint8_t type);
 void EntUpdatePosition(Entity *ent, float dt);
 
 Vector2 EntCenter(Entity *ent);
-
-void EntOrbitStart(Entity *ent, Entity *orbit_body);
-void EntOrbitUpdate(Entity *ent, Entity *orbit_body, float dt);
-void OrbitDataDrawDebug(OrbitData *data);
-
-Vector2 OrbitToWorldVel(Entity *ent, Vector2 orbit_vel);
 
 // *** PLAYER ***
 //
@@ -144,10 +119,6 @@ void PlayerDraw(Entity *player, SpriteLoader *sl);
 void PlayerInput(Entity *player, float dt);
 
 void PlayerPhysicsFreeFloat(Entity *player, float dt);
-void PlayerPhysicsOrbit(Entity *player, float dt);
-
-void PlayerStartJump(Entity *player);
-void PlayerEndJump(Entity *player, bool cut);
 
 void PlayerCameraControls(Entity *player, float dt);
 

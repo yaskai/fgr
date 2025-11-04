@@ -43,9 +43,6 @@ void EntHandlerUpdate(EntHandler *handler, float dt) {
 	Entity *player_ent = &handler->ents[0];
 	PlayerData *p = player_ent->data;
 
-	if(p->anchor_id > -1)	
-		EntOrbitUpdate(player_ent, &handler->ents[p->anchor_id], dt);
-
 	for(uint16_t i = 0; i < handler->count; i++) {
 		// Get entity pointer
 		Entity *ent = &handler->ents[i];
@@ -56,15 +53,10 @@ void EntHandlerUpdate(EntHandler *handler, float dt) {
 		// Call entity's update function
 		if(ent->update) ent->update(ent, dt);
 	}
-	
-	FindPlayerOrbit(handler, dt);
 }
 
 // Draw all entities
 void EntHandlerDraw(EntHandler *handler, uint8_t flags) {
-	//if(flags & SHOW_DEBUG)
-		//DrawLine(ray_start.x, ray_start.y, ray_end.x, ray_end.y, WHITE);
-
 	for(uint16_t i = 1; i < handler->count; i++) {
 		// Get entity pointer
 		Entity *ent = &handler->ents[i];
@@ -78,14 +70,7 @@ void EntHandlerDraw(EntHandler *handler, uint8_t flags) {
 
 	Entity *player_ent = &handler->ents[0];	
 	PlayerData *p = player_ent->data;
-
 	player_ent->draw(player_ent, handler->sprite_loader);
-	if(p->raycast_id > -1) {
-		Entity *cast_hit_body = &handler->ents[p->raycast_id];
-		//DrawCircleLinesV(EntCenter(cast_hit_body), cast_hit_body->radius * 3, BLUE);
-		
-		//DrawText(TextFormat("%d", p->raycast_id), player_ent->position.x, player_ent->position.y, 16, BLUE);	
-	}
 }
 
 // Create a new entity and add to pool (corresponding to entity type)
@@ -178,56 +163,9 @@ void AsteroidSpawn(EntHandler *handler, Vector2 position) {
 
 	Entity *ast = &handler->ents[id];
 	ast->position = position;
+	ast->type = ENT_ASTEROID;
 	ast->radius = handler->sprite_loader->spr_pool[1].frame_w * 0.5f;
 	ast->center_offset = (Vector2){ast->radius, ast->radius};
 	ast->flags |= ENT_IS_BODY;
-}
-
-void FindPlayerOrbit(EntHandler *handler, float dt) {
-	Entity *player_ent = &handler->ents[0];
-	PlayerData *p = player_ent->data;
-
-	Entity *orbit_body = NULL;
-
-	int16_t nearest_body_id = -1;
-	int16_t raycast_body_id = -1;
-
-	float shortest_dist = FLT_MAX, shortest_cast_dist = FLT_MAX;
-
-	ray_start = EntCenter(player_ent);
-	ray_end = Vector2Add(EntCenter(player_ent), Vector2Scale(p->orbit_dir, 2000)); 
- 
-	for(uint16_t i = 0; i < handler->count; i++) {
-		Entity *body = &handler->ents[i];
-		if(!(body->flags & ENT_IS_BODY)) continue;
-	
-		float dist = Vector2Distance(EntCenter(player_ent), EntCenter(body));		
-		if(dist < shortest_dist) {
-			nearest_body_id = i;	
-			shortest_dist = dist;
-		}
-
-		if(CheckCollisionCircleLine(EntCenter(body), body->radius * 3, ray_start, ray_end)) {
-			if(p->anchor_id != i) {
-				raycast_body_id = i;
-			}
-		}
-	}
-
-	if(nearest_body_id > -1) {
-		orbit_body = &handler->ents[nearest_body_id];
-		
-		if(player_ent->flags & ENT_ORBIT)
-			p->prev_anchor_id = p->anchor_id;
-
-		if(CheckCollisionCircles(EntCenter(player_ent), player_ent->radius, EntCenter(orbit_body), orbit_body->radius * 2)) {
-			if(((player_ent->flags & ENT_ORBIT) == 0) || p->anchor_id != nearest_body_id) {
-				EntOrbitStart(player_ent, orbit_body);
-				p->anchor_id = nearest_body_id;
-			}
-		}
-	}
-
-	p->raycast_id = raycast_body_id;
 }
 
