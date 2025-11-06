@@ -8,6 +8,8 @@
 #include "sprites.h"
 #include "ent_handler.h"
 
+Rope rope = (Rope){0};
+
 EntHandler *ent_handler = NULL;
 void PlayerSetHandler(EntHandler *handler) { ent_handler = handler; }
 
@@ -23,13 +25,14 @@ void PlayerInit(Entity *player, SpriteLoader *sl, Camera2D *camera) {
 	p->grav_force = PLR_FALL_GRAV;
 	p->run_anim = &sl->anims[0];
 	p->camera = camera;
-	
+	p->harpoon_pos = EntCenter(player);
 
 	player->orbit_angle = -90 * DEG2RAD;
 	player->center_offset = (Vector2){sl->spr_pool[0].frame_w * 0.5f, sl->spr_pool[0].frame_h * 0.5f};
 	player->radius = player->center_offset.y;
 
-	RopeInit(&p->rope, player->position);
+	p->rope = &rope;
+	RopeInit(p->rope, player->position);
 }
 
 void PlayerSpawn(Entity *player, Vector2 position) {
@@ -67,11 +70,7 @@ void PlayerUpdate(Entity *player, float dt) {
 	}
 
 	PlayerPhysicsFreeFloat(player, dt);
-
-	p->rope.nodes[0].pos_prev = EntCenter(player), p->rope.nodes[0].pos_curr = EntCenter(player);
-	p->rope.gravity = Vector2Scale(p->orbit_dir, -p->grav_force * 0.001f);
-	//p->rope.gravity = Vector2Zero();
-	RopeUpdate(&p->rope, dt);
+	HarpoonUpdate(player, dt);
 }
 
 void PlayerDraw(Entity *player, SpriteLoader *sl) {
@@ -81,7 +80,7 @@ void PlayerDraw(Entity *player, SpriteLoader *sl) {
 	Vector2 ray_dest = Vector2Add(center, Vector2Scale(dir_ray, 999));
 	DrawLine(center.x, center.y, ray_dest.x, ray_dest.y, RAYWHITE);
 
-	RopeDraw(&p->rope);
+	RopeDraw(p->rope);
 	//if(player->flags & ENT_ORBIT) OrbitDataDrawDebug(&player->orbit_data);
 
 	uint8_t draw_flags = 0;
@@ -147,8 +146,8 @@ void PlayerInput(Entity *player, float dt) {
 void PlayerPhysicsFreeFloat(Entity *player, float dt) {
 	PlayerData *p = player->data;
 
-	Vector2 prev_pos = player->position;	
-	Vector2 next_pos = Vector2Add(player->position, player->velocity);
+	Vector2 prev_pos = EntCenter(player);	
+	Vector2 next_pos = Vector2Add(prev_pos, player->velocity);
 
 	Vector2 dir = Vector2Normalize(Vector2Subtract(next_pos, prev_pos));
 	Vector2 ray_dest = Vector2Add(prev_pos, Vector2Scale(dir, 999));
@@ -157,19 +156,20 @@ void PlayerPhysicsFreeFloat(Entity *player, float dt) {
 
 	for(uint16_t i = 0; i < ent_handler->count; i++) {
 		Entity *ent = &ent_handler->ents[i];
-		if(ent->type != ENT_ASTEROID) continue;
 
-		if(CheckCollisionCircleLine(EntCenter(ent), ent->radius, prev_pos, ray_dest)) {
-			//printf("player collision with asteroid of id[%d]\n", i);
-			if(Vector2Distance(EntCenter(ent), EntCenter(player)) < ent->radius + player->radius) {
-				player->velocity = Vector2Scale(player->velocity, -1);
-			}
-		}
+		if(ent->type != ENT_ASTEROID)
+			continue;
+
+		if(!(CheckCollisionCircleLine(EntCenter(ent), ent->radius * 1.25f, prev_pos, ray_dest)))
+			continue;
+
+		if(CheckCollisionCircles(EntCenter(ent), ent->radius, prev_pos, player->radius)) 
+			player->velocity = Vector2Scale(player->velocity, -0.75f);
 	}
 
 	player->position = Vector2Add(player->position, player->velocity);
 
-	//PlayerCameraControls(player, dt);
+	PlayerCameraControls(player, dt);
 }
 
 void PlayerCameraControls(Entity *player, float dt) {
@@ -177,7 +177,22 @@ void PlayerCameraControls(Entity *player, float dt) {
 	Camera2D *cam = p->camera;
 
 	Vector2 player_center = EntCenter(player);
-	cam->target = player_center;
-	cam->rotation = -player->orbit_angle * RAD2DEG - 90;
+	cam->target = Vector2Lerp(cam->target, player_center, 5 * dt);
+
+	float rot_target = -player->orbit_angle * RAD2DEG - 90;
+	cam->rotation = Lerp(cam->rotation, rot_target, 5 * dt);
+}
+
+void HarpoonUpdate(Entity *player, float dt) {
+	PlayerData *p = player->data;
+
+	p->harpoon_pos = Vector2Add(p->harpoon_pos, Vector2Scale(p->harpoon_vel, dt));
+
+	RopeNodeSetPos(&p->rope->nodes[0], EntCenter(player));
+	RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], p->harpoon_pos);
+
+	p->rope->gravity = Vector2Scale(p->orbit_dir, -p->grav_force * 0.001f);
+
+	RopeUpdate(p->rope, dt);
 }
 

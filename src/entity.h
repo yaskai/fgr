@@ -87,12 +87,15 @@ typedef struct {
 	Vector2 orbit_dir;
 	Vector2 orbit_vel;			// X for circular movement and Y for height/distance 
 
+	Vector2 harpoon_pos;
+	Vector2 harpoon_vel;
+
 	Camera2D *camera;			// Pointer to camera instance
 	InputState *input;			// Pointer to input state instance
 	
 	SpriteAnimation *run_anim;
 
-	Rope rope;
+	Rope *rope;
 } PlayerData;
 
 enum PLAYER_STATES {
@@ -121,6 +124,8 @@ void PlayerInput(Entity *player, float dt);
 void PlayerPhysicsFreeFloat(Entity *player, float dt);
 
 void PlayerCameraControls(Entity *player, float dt);
+
+void HarpoonUpdate(Entity *player, float dt);
 
 // *** ASTEROID ***
 //

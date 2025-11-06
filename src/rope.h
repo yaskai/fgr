@@ -5,6 +5,8 @@
 #define ROPE_H_
 
 #define ROPE_LENGTH 128 
+#define ROPE_TAIL 	(ROPE_LENGTH - 1)
+
 #define NODE_PINNED 0x01
 
 typedef struct {
@@ -32,5 +34,7 @@ void RopeIntegrate(Rope *rope, float dt);
 void RopeSolveConstraints(Rope *rope, float dt);
 void RopeUpdate(Rope *rope, float dt);
 void RopeDraw(Rope *rope);
+
+void RopeNodeSetPos(RopeNode *node, Vector2 pos);
 
 #endif

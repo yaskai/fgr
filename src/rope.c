@@ -8,13 +8,19 @@
 
 void RopeInit(Rope *rope, Vector2 pos) {
 	rope->length = ROPE_LENGTH;
-	rope->iterations = 64;
+	rope->iterations = 32;
 	rope->dampening = 0.9f;
-	rope->segment_dist = 0.25f;
+	rope->segment_dist = 3.25f;
 
 	rope->nodes = MemAlloc(sizeof(RopeNode) * rope->length); 
 
 	rope->nodes[0] = (RopeNode) {
+		.flags = (NODE_PINNED),
+		.pos_prev = pos,
+		.pos_curr = pos
+	};
+
+	rope->nodes[rope->length-1] = (RopeNode) {
 		.flags = (NODE_PINNED),
 		.pos_prev = pos,
 		.pos_curr = pos
@@ -67,8 +73,8 @@ void RopeSolveConstraints(Rope *rope, float dt) {
 
 		if(!Vector2Equals(prev_a, node_a->pos_curr) || !Vector2Equals(prev_b,  node_b->pos_curr)) continue;
 
-		 node_a->pos_curr = Vector2Subtract(node_a->pos_curr, Vector2Scale(delta, 0.5f * correction));
-		 node_b->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, 0.5f * correction));
+		node_a->pos_curr = Vector2Subtract(node_a->pos_curr, Vector2Scale(delta, 0.5f * correction));
+		node_b->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, 0.5f * correction));
 	}
 }
 
@@ -86,12 +92,32 @@ void RopeDraw(Rope *rope) {
 		Vector2 p0 = rope->nodes[i].pos_curr;
 		Vector2 p1 = rope->nodes[i + 1].pos_curr;
 
-		DrawLineEx(p0, p1, 4.0f, SKYBLUE);
-		DrawCircleV(p0, 8.0f, SKYBLUE);
+		float dist = Vector2Distance(p0, p1);
+
+		if(dist > rope->segment_dist) {
+			float step = 4;
+			float n = 0;
+
+			Vector2 dir = Vector2Normalize(Vector2Subtract(p1, p0));
+
+			while(n < dist) {
+				Vector2 p = Vector2Add(p0, Vector2Scale(dir, n));
+				DrawCircleV(p, 4, SKYBLUE);
+				n += step;
+
+				if(n > dist) break;
+			}
+
+		} else DrawCircleV(p0, 4, SKYBLUE);
 	}
 }
 
 void RopeClose(Rope *rope) {
 	free(rope->nodes);
+}
+
+void RopeNodeSetPos(RopeNode *node, Vector2 pos) {
+	node->pos_prev = pos;
+	node->pos_curr = pos;
 }
 
