@@ -36,6 +36,8 @@ EntDrawFunc ent_draw_funcs[] = { &PlayerDraw, &AsteroidDraw, NULL, NULL };
 void EntHandlerInit(EntHandler *handler, SpriteLoader *sprite_loader, Camera2D *camera) {
 	handler->sprite_loader = sprite_loader;
 	handler->camera = camera;
+
+	handler->time_mod = 1.0f;
 }
 
 // Update all entities
@@ -51,7 +53,7 @@ void EntHandlerUpdate(EntHandler *handler, float dt) {
 		if(!(ent->flags & ENT_ACTIVE)) continue;
 
 		// Call entity's update function
-		if(ent->update) ent->update(ent, dt);
+		if(ent->update) ent->update(ent, dt * handler->time_mod);
 	}
 }
 
@@ -115,6 +117,9 @@ void ReserveDataPlayer(EntHandler *handler, Entity *ent) {
 	// Set entity data pointer
 	ent->data = &handler->player_data[data_id];
 	PlayerInit(ent, handler->sprite_loader, handler->camera);
+
+	PlayerData *p = ent->data;
+	p->time_mod = &handler->time_mod;
 }
 
 // Reserve data for entity of type "asteroid"

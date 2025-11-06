@@ -7,7 +7,8 @@
 #define ROPE_LENGTH 128 
 #define ROPE_TAIL 	(ROPE_LENGTH - 1)
 
-#define NODE_PINNED 0x01
+#define NODE_PINNED 	0x01
+#define NODE_SKIP_DRAW	0x02
 
 typedef struct {
 	uint8_t flags;

@@ -53,7 +53,7 @@ void RopeIntegrate(Rope *rope, float dt) {
 }
 
 void RopeSolveConstraints(Rope *rope, float dt) {
-	for(uint8_t i = 0; i < rope->length - 1; i++) {
+	for(uint8_t i = 0; i < ROPE_TAIL; i++) {
 		RopeNode *node_a = &rope->nodes[i];
 		RopeNode *node_b = &rope->nodes[i + 1];
 
@@ -88,7 +88,9 @@ void RopeUpdate(Rope *rope, float dt) {
 }
 
 void RopeDraw(Rope *rope) {
-	for(uint8_t i = 0; i < rope->length - 1; i++) {
+	for(uint8_t i = 0; i < ROPE_TAIL; i++) {
+		if(rope->nodes[i].flags & NODE_SKIP_DRAW) continue;
+
 		Vector2 p0 = rope->nodes[i].pos_curr;
 		Vector2 p1 = rope->nodes[i + 1].pos_curr;
 

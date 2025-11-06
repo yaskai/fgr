@@ -38,7 +38,8 @@ typedef struct {
 	uint8_t state;
 	uint8_t input_method;
 
-	Rectangle render_src_rec, render_dest_rec;
+	Rectangle render_src_rec;
+	Rectangle render_dest_rec;
 
 	Config conf;
 	Camera2D cam;

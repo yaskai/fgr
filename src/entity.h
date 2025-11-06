@@ -31,6 +31,7 @@ typedef struct Entity {
 	uint8_t sprite_id;		// Spritesheet index
 
 	float radius;
+	float angle;
 	float orbit_height;
 	float orbit_angle;		// Angle used for physics calculations in radians
 	float sprite_angle;		// Angle used for sprite rotation in degrees
@@ -69,6 +70,7 @@ Vector2 EntCenter(Entity *ent);
 typedef struct {
 	uint8_t ex_flags;			// Extra flags
 	uint8_t state;				// State used for animations some inputs
+	uint8_t harpoon_state;
 
 	short sprite_dir;			// Sprite direction
 	short active_anim;		    // Index of current animation, -1 for none
@@ -89,6 +91,10 @@ typedef struct {
 
 	Vector2 harpoon_pos;
 	Vector2 harpoon_vel;
+
+	Vector2 cursor_pos;
+
+	float *time_mod;
 
 	Camera2D *camera;			// Pointer to camera instance
 	InputState *input;			// Pointer to input state instance
@@ -115,6 +121,15 @@ enum PLAYER_STATES {
 #define PLR_FALL_GRAV	    900.0f
 #define PLR_CUT_GRAV	   1850.0f
 
+#define HARPOON_ACTIVE		0x01
+
+enum harpoon_state {
+	HARPOON_NONE,
+	HARPOON_AIM,
+	HARPOON_EXTEND,
+	HARPOON_RETRACT
+};
+
 void PlayerInit(Entity *player, SpriteLoader *sl, Camera2D *camera);
 void PlayerSpawn(Entity *player, Vector2 position);
 void PlayerUpdate(Entity *player, float dt);
@@ -126,6 +141,11 @@ void PlayerPhysicsFreeFloat(Entity *player, float dt);
 void PlayerCameraControls(Entity *player, float dt);
 
 void HarpoonUpdate(Entity *player, float dt);
+void HarpoonCollision(Entity *player, float dt);
+
+void HarpoonAim(Entity *player, float dt);
+void HarpoonShoot(Entity *player, Vector2 dir);
+void HarpoonRetract(Entity *player, float dt);
 
 // *** ASTEROID ***
 //

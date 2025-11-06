@@ -161,7 +161,6 @@ void MainStart(Game *game) {
 
 	//AsteroidSpawn(&game->ent_handler, (Vector2){-400, -300});
 	//AsteroidSpawn(&game->ent_handler, (Vector2){500, 0});
-
 	game->state = GAME_MAIN;
 }
 

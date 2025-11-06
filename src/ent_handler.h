@@ -4,7 +4,7 @@
 #ifndef ENT_HANDLER_H
 #define ENT_HANDLER_H
 
-#define ENT_ARENA_CAP	1024	
+#define ENT_ARENA_CAP	256	
 #define ENT_PLAYER_ID	0
 
 #define MAX_PLAYERS 	1
@@ -16,6 +16,9 @@
 
 typedef struct {
 	uint16_t count;
+
+	float time_mod;
+
 	Entity ents[ENT_ARENA_CAP];	
 	
 	uint16_t type_counts[ENT_TYPE_COUNT];
