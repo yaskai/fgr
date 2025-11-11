@@ -21,9 +21,12 @@ typedef struct {
 	uint8_t flags;
 	uint8_t length;
 	uint8_t iterations;
+	uint8_t start_id;
 
 	float segment_dist;
 	float dampening;
+	float stretch;
+	float max_stretch;
 
 	Vector2 gravity;
 

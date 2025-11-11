@@ -9,8 +9,9 @@
 void RopeInit(Rope *rope, Vector2 pos) {
 	rope->length = ROPE_LENGTH;
 	rope->iterations = 32;
-	rope->dampening = 0.9f;
+	rope->dampening = 0.75f;
 	rope->segment_dist = 3.25f;
+	rope->start_id = 0;
 
 	rope->nodes = MemAlloc(sizeof(RopeNode) * rope->length); 
 
@@ -37,7 +38,7 @@ void RopeIntegrate(Rope *rope, float dt) {
 	Vector2 mouse_pos = GetMousePosition();
 	Vector2 mouse_delta = GetMouseDelta();
 
-	for(uint8_t i = 0; i < rope->length; i++) {
+	for(uint8_t i = rope->start_id; i < rope->length; i++) {
 		RopeNode *node = &rope->nodes[i];
 		Vector2 new_prev = node->pos_curr;
 
@@ -53,7 +54,10 @@ void RopeIntegrate(Rope *rope, float dt) {
 }
 
 void RopeSolveConstraints(Rope *rope, float dt) {
-	for(uint8_t i = 0; i < ROPE_TAIL; i++) {
+	rope->stretch = 0;
+	rope->max_stretch = rope->segment_dist * (ROPE_TAIL) * 2.0f;
+
+	for(uint8_t i = rope->start_id; i < ROPE_TAIL; i++) {
 		RopeNode *node_a = &rope->nodes[i];
 		RopeNode *node_b = &rope->nodes[i + 1];
 
@@ -61,12 +65,16 @@ void RopeSolveConstraints(Rope *rope, float dt) {
 		float dist = Vector2Length(delta);
 		float correction = (dist - rope->segment_dist) / dist; 
 
+		rope->stretch += dist;
+
 		if(dist == 0) continue;
 
 		Vector2 prev_a = node_a->pos_curr;
 		Vector2 prev_b = node_b->pos_curr;
 		
-		if(node_a->flags & NODE_PINNED) 
+		if(node_a->flags & NODE_PINNED && node_b->flags & NODE_PINNED)
+			continue;
+		else if(node_a->flags & NODE_PINNED) 
 			node_b->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, correction));	
 		else if(node_b->flags & NODE_PINNED)
 			node_a->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, correction));	
@@ -79,16 +87,18 @@ void RopeSolveConstraints(Rope *rope, float dt) {
 }
 
 void RopeUpdate(Rope *rope, float dt) {
-	rope->nodes[0].pos_prev = rope->nodes[0].pos_curr;
+	//rope->nodes[0].pos_prev = rope->nodes[0].pos_curr;
 
 	for(uint8_t i = 0; i < rope->iterations; i++) {
 		RopeIntegrate(rope, dt);
-		RopeSolveConstraints(rope, dt);
+
+		for(uint8_t j = 0; j < 2; j++) 
+			RopeSolveConstraints(rope, dt);
 	}
 }
 
 void RopeDraw(Rope *rope) {
-	for(uint8_t i = 0; i < ROPE_TAIL; i++) {
+	for(uint8_t i = rope->start_id; i < ROPE_TAIL; i++) {
 		if(rope->nodes[i].flags & NODE_SKIP_DRAW) continue;
 
 		Vector2 p0 = rope->nodes[i].pos_curr;

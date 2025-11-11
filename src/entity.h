@@ -127,7 +127,9 @@ enum harpoon_state {
 	HARPOON_NONE,
 	HARPOON_AIM,
 	HARPOON_EXTEND,
-	HARPOON_RETRACT
+	HARPOON_RETRACT,
+	HARPOON_STUCK,
+	HARPOON_PULL
 };
 
 void PlayerInit(Entity *player, SpriteLoader *sl, Camera2D *camera);
@@ -146,6 +148,7 @@ void HarpoonCollision(Entity *player, float dt);
 void HarpoonAim(Entity *player, float dt);
 void HarpoonShoot(Entity *player, Vector2 dir);
 void HarpoonRetract(Entity *player, float dt);
+void HarpoonPull(Entity *player, float dt);
 
 // *** ASTEROID ***
 //
