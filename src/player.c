@@ -17,6 +17,8 @@ Vector2 dir_ray;
 
 float screenshake = 0;
 
+float rope_t = 0;
+
 // Initialize player, set data, pointers, references, etc.
 void PlayerInit(Entity *player, SpriteLoader *sl, Camera2D *camera) {
 	PlayerData *p = player->data;
@@ -173,6 +175,10 @@ void PlayerInput(Entity *player, float dt) {
 		case HARPOON_STUCK:
 			if(IsKeyPressed(KEY_R))
 				p->harpoon_state = HARPOON_PULL;
+
+			//p->camera->zoom = Lerp(p->camera->zoom, 1 - (p->rope->stretch * 0.0001f), dt * 10);
+			Vector2 mid = Vector2Subtract(p->camera->target, EntCenter(player));
+			p->camera->target = Vector2Lerp(p->camera->target, mid, dt * 3);
 
 			break;
 
@@ -406,20 +412,26 @@ void HarpoonPull(Entity *player, float dt) {
 	//p->rope->segment_dist -= (p->rope->segment_dist * 0.1f) * dt;
 	p->rope->segment_dist *= (0.9999f * dt);
 
+	rope_t -= dt;
+	if(rope_t < 0) {
+		p->rope->start_id++;
+		rope_t = 1;
+	}
+
 	//player->velocity = (Vector2){0, 0};
 
-	p->rope->nodes[0].flags &= ~NODE_PINNED;
+	p->rope->nodes[p->rope->start_id].flags &= ~NODE_PINNED;
 	//p->rope->nodes[ROPE_TAIL].flags |= NODE_PINNED;
 	RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], p->harpoon_pos);
 
-	Vector2 new_center = p->rope->nodes[1].pos_curr; 
+	Vector2 new_center = p->rope->nodes[p->rope->start_id].pos_curr; 
 	player->position = (Vector2) {
 		new_center.x - player->center_offset.x,
 		new_center.y - player->center_offset.y
 	};
 
-	//Vector2 to_node = Vector2Normalize(Vector2Subtract(p->rope->nodes[1].pos_curr, EntCenter(player)));
-	Vector2 to_node = Vector2Normalize(Vector2Subtract(p->rope->nodes[ROPE_TAIL].pos_curr, EntCenter(player)));
+	Vector2 to_node = Vector2Normalize(Vector2Subtract(p->rope->nodes[p->rope->start_id].pos_curr, EntCenter(player)));
+	//Vector2 to_node = Vector2Normalize(Vector2Subtract(p->rope->nodes[ROPE_TAIL].pos_curr, EntCenter(player)));
 	Vector2 wish_vel = Vector2Scale(to_node, 4.0f);
 	//player->velocity = Vector2Lerp(player->velocity, wish_vel, dt * 10);
 	player->velocity = wish_vel;
@@ -437,6 +449,8 @@ void HarpoonPull(Entity *player, float dt) {
 		p->harpoon_state = 0;
 		//player->velocity = Vector2Zero();
 		//player->velocity = Vector2Scale(player->velocity, 0.8f);
+		to_node = Vector2Normalize(Vector2Subtract(p->harpoon_pos, EntCenter(player)));
+		wish_vel = Vector2Scale(to_node, 4.0f);
 		player->velocity = wish_vel;
 	}
 }
