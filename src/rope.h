@@ -12,6 +12,7 @@
 
 typedef struct {
 	uint8_t flags;
+	float mass;
 	
 	Vector2 pos_prev;
 	Vector2 pos_curr;

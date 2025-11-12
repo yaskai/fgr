@@ -212,7 +212,7 @@ void PlayerPhysicsFreeFloat(Entity *player, float dt) {
 			continue;
 		*/
 
-		if(CheckCollisionCircles(EntCenter(ent), ent->radius, prev_pos, player->radius)) {
+		if(CheckCollisionCircles(EntCenter(ent), ent->radius, EntCenter(player), player->radius)) {
 			screenshake = Vector2Length(player->velocity) * 0.05f;
 
 			if(Vector2Length(player->velocity) < 0.1f ) {
@@ -270,6 +270,12 @@ void HarpoonUpdate(Entity *player, float dt) {
 		return;
 	} else if(p->harpoon_state == HARPOON_EXTEND) {
 		p->rope->segment_dist = Lerp(p->rope->segment_dist, 4.0f, dt * 20);
+
+		rope_t -= dt;
+		if(rope_t < 0) {
+			rope_t = 0.5f;
+		}
+
 		HarpoonCollision(player, dt);
 	} else if(p->harpoon_state == HARPOON_PULL) {
 		HarpoonPull(player, dt);
@@ -401,7 +407,7 @@ void HarpoonRetract(Entity *player, float dt) {
 	if(Vector2Distance(p->rope->nodes[ROPE_TAIL].pos_curr, EntCenter(player)) <= player->radius * 2) {
 		p->ex_flags &= ~HARPOON_ACTIVE;
 		p->harpoon_state = 0;
-		p->rope->iterations = 32;
+		p->rope->iterations = 16;
 	}
 }
 
@@ -415,7 +421,7 @@ void HarpoonPull(Entity *player, float dt) {
 	rope_t -= dt;
 	if(rope_t < 0) {
 		p->rope->start_id++;
-		rope_t = 1;
+		rope_t = 0.5f;
 	}
 
 	//player->velocity = (Vector2){0, 0};

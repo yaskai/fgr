@@ -9,31 +9,33 @@
 void RopeInit(Rope *rope, Vector2 pos) {
 	rope->length = ROPE_LENGTH;
 	rope->iterations = 32;
-	rope->dampening = 0.75f;
+	rope->dampening = 0.5f;
 	rope->segment_dist = 3.25f;
 	rope->start_id = 0;
 
 	rope->nodes = MemAlloc(sizeof(RopeNode) * rope->length); 
 
+	for(uint8_t i = 1; i < rope->length; i++) {
+		RopeNode *node = &rope->nodes[i];
+		node->pos_curr = (Vector2){pos.x + GetRandomValue(-200, 200), pos.y + (i*rope->segment_dist)};
+		node->pos_prev = node->pos_curr;
+		node->mass = 1.0f;
+	}
+
 	rope->nodes[0] = (RopeNode) {
 		.flags = (NODE_PINNED),
 		.pos_prev = pos,
-		.pos_curr = pos
+		.pos_curr = pos,
+		.mass = 1.25f
 	};
 
 	rope->nodes[rope->length-1] = (RopeNode) {
 		.flags = (NODE_PINNED),
 		.pos_prev = pos,
-		.pos_curr = pos
+		.pos_curr = pos,
+		.mass = 1.5f
 	};
-
-	for(uint8_t i = 1; i < rope->length; i++) {
-		RopeNode *node = &rope->nodes[i];
-		node->pos_curr = (Vector2){pos.x + GetRandomValue(-200, 200), pos.y + (i*rope->segment_dist)};
-		node->pos_prev = node->pos_curr;
-	}
 }
-
 void RopeIntegrate(Rope *rope, float dt) {
 	Vector2 mouse_pos = GetMousePosition();
 	Vector2 mouse_delta = GetMouseDelta();
@@ -71,18 +73,23 @@ void RopeSolveConstraints(Rope *rope, float dt) {
 
 		Vector2 prev_a = node_a->pos_curr;
 		Vector2 prev_b = node_b->pos_curr;
+
+		Vector2 vel_transfer = Vector2Scale(Vector2Subtract(node_b->pos_curr, node_a->pos_curr), 0.95f);
 		
 		if(node_a->flags & NODE_PINNED && node_b->flags & NODE_PINNED)
 			continue;
-		else if(node_a->flags & NODE_PINNED) 
+		else if(node_a->flags & NODE_PINNED) {
 			node_b->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, correction));	
-		else if(node_b->flags & NODE_PINNED)
+			node_b->pos_prev = Vector2Add(node_b->pos_prev, Vector2Scale(vel_transfer, node_a->mass));
+		} else if(node_b->flags & NODE_PINNED) {
 			node_a->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, correction));	
+			node_a->pos_prev = Vector2Subtract(node_a->pos_prev, Vector2Scale(vel_transfer, node_b->mass));
+		}
 
 		if(!Vector2Equals(prev_a, node_a->pos_curr) || !Vector2Equals(prev_b,  node_b->pos_curr)) continue;
 
-		node_a->pos_curr = Vector2Subtract(node_a->pos_curr, Vector2Scale(delta, 0.5f * correction));
-		node_b->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, 0.5f * correction));
+		node_a->pos_curr = Vector2Subtract(node_a->pos_curr, Vector2Scale(delta, 0.5f * correction * node_a->mass));
+		node_b->pos_curr = Vector2Add(node_b->pos_curr, Vector2Scale(delta, 0.5f * correction * node_b->mass));
 	}
 }
 
@@ -92,7 +99,7 @@ void RopeUpdate(Rope *rope, float dt) {
 	for(uint8_t i = 0; i < rope->iterations; i++) {
 		RopeIntegrate(rope, dt);
 
-		for(uint8_t j = 0; j < 2; j++) 
+		for(uint8_t j = 0; j < 4; j++) 
 			RopeSolveConstraints(rope, dt);
 	}
 }

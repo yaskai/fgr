@@ -163,8 +163,8 @@ void AsteroidDraw(Entity *asteroid, SpriteLoader *sl);
 // *** FISH ***
 //
 typedef struct {
-	uint8_t ex_flags;
-	uint8_t state;
+	uint8_t state, ex_flags;
+	uint8_t size, rarity;
 } FishData;
 
 void FishUpdate(Entity *fish, float dt);
