@@ -12,3 +12,4 @@ void FishDraw(Entity *fish, SpriteLoader *sl) {
 
 	DrawCircleV(EntCenter(fish), fish->radius, GOLD);
 }
+

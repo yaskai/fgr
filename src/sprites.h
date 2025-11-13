@@ -47,6 +47,13 @@ void AnimDrawPro(SpriteAnimation *anim, Vector2 position, float rotation, uint8_
 
 #define SPR_POOL_CAPACITY	255
 
+enum spritesheets {
+	SHEET_PLAYER,
+	SHEET_ASTEROIDS,
+	SHEET_FISH,
+	SHEET_ITEMS
+};
+
 typedef struct {
 	uint8_t spr_count;
 	uint8_t anim_count;

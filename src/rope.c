@@ -13,7 +13,8 @@ void RopeInit(Rope *rope, Vector2 pos) {
 	rope->segment_dist = 3.25f;
 	rope->start_id = 0;
 
-	rope->nodes = MemAlloc(sizeof(RopeNode) * rope->length); 
+	//rope->nodes = MemAlloc(sizeof(RopeNode) * rope->length); 
+	rope->nodes = calloc(rope->length, sizeof(RopeNode));
 
 	for(uint8_t i = 1; i < rope->length; i++) {
 		RopeNode *node = &rope->nodes[i];

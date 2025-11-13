@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <float.h>
 #include "raylib.h"
@@ -13,7 +14,8 @@ uint16_t type_max[] = {
 	MAX_PLAYERS,
 	MAX_FISH,
 	MAX_NPCS,
-	MAX_ASTEROIDS
+	MAX_ASTEROIDS,
+	MAX_ITEMS
 };
 
 Vector2 ray_start;
@@ -22,15 +24,30 @@ Vector2 ray_coll_point;
 
 // Entity reservation function prototype and array 
 typedef void(*ReserveDataFunc)(EntHandler *handler, Entity *ent);
-ReserveDataFunc data_reserve_funcs[] = { &ReserveDataPlayer, &ReserveDataFish, &ReserveDataNpc, &ReserveDataAsteroid };
+ReserveDataFunc data_reserve_funcs[] = {
+	&ReserveDataPlayer,
+	&ReserveDataFish,
+	&ReserveDataNpc,
+	&ReserveDataAsteroid,  
+};
 
 // Entity update function prototype and array 
 typedef void(*EntUpdateFunc)(Entity *ent, float dt);
-EntUpdateFunc ent_update_funcs[] = { &PlayerUpdate, &AsteroidUpdate, NULL, NULL };
+EntUpdateFunc ent_update_funcs[] = { 
+	&PlayerUpdate,
+	&AsteroidUpdate,
+	NULL,
+	NULL
+};
 
 // Entity draw function prototype and array 
 typedef void(*EntDrawFunc)(Entity *ent, SpriteLoader *sl);
-EntDrawFunc ent_draw_funcs[] = { &PlayerDraw, &AsteroidDraw, NULL, NULL };
+EntDrawFunc ent_draw_funcs[] = { 
+	&PlayerDraw,
+	&AsteroidDraw,
+	NULL,
+	NULL
+};
 
 // Initialize entity handler 
 void EntHandlerInit(EntHandler *handler, SpriteLoader *sprite_loader, Camera2D *camera) {
@@ -38,6 +55,14 @@ void EntHandlerInit(EntHandler *handler, SpriteLoader *sprite_loader, Camera2D *
 	handler->camera = camera;
 
 	handler->time_mod = 1.0f;
+
+	handler->ents = calloc(ENT_ARENA_CAP, sizeof(Entity));
+
+	handler->player_data = calloc(MAX_PLAYERS, sizeof(PlayerData));
+	handler->asteroid_data = calloc(MAX_ASTEROIDS, sizeof(AsteroidData));
+	handler->fish_data = calloc(MAX_FISH, sizeof(FishData));
+	handler->npc_data = calloc(MAX_NPCS, sizeof(NpcData));
+	handler->item_data = calloc(MAX_ITEMS, sizeof(ItemData));
 }
 
 // Update all entities

@@ -14,13 +14,14 @@
 #define ENT_CAST_ORBIT		0x10
 #define ENT_SWITCH_ORBIT	0x20
 
-#define ENT_TYPE_COUNT	4
+#define ENT_TYPE_COUNT	5
 
 enum ENT_TYPE {
 	ENT_PLAYER,		
 	ENT_ASTEROID,
 	ENT_FISH,
-	ENT_NPC
+	ENT_NPC,
+	ENT_ITEM
 };
 
 // *** BASE ENTITY STRUCT ***	
@@ -32,6 +33,7 @@ typedef struct Entity {
 
 	float radius;
 	float angle;
+	float scale;
 	float orbit_height;
 	float orbit_angle;		// Angle used for physics calculations in radians
 	float sprite_angle;		// Angle used for sprite rotation in degrees
@@ -85,6 +87,9 @@ typedef struct {
 
 	float jump_timer;
 	float jetpack_timer;
+
+	float fuel;
+	float oxygen;
 
 	Vector2 orbit_dir;
 	Vector2 orbit_vel;			// X for circular movement and Y for height/distance 
@@ -160,11 +165,20 @@ typedef struct {
 void AsteroidUpdate(Entity *asteroid, float dt);
 void AsteroidDraw(Entity *asteroid, SpriteLoader *sl);
 
+enum FISH_STATES {
+	FISH_IDLE,
+	FISH_SWIM,
+	FISH_CAUGHT
+};
+
 // *** FISH ***
 //
 typedef struct {
-	uint8_t state, ex_flags;
-	uint8_t size, rarity;
+	uint8_t subtype;
+	uint8_t state; 
+	uint8_t ex_flags;
+	uint8_t size; 
+	uint8_t rarity;
 } FishData;
 
 void FishUpdate(Entity *fish, float dt);
@@ -179,5 +193,10 @@ typedef struct {
 
 void NpcUpdate(Entity *npc, float dt);
 void NpcDraw(Entity *npc, SpriteLoader *sl);
+
+typedef struct {
+	uint8_t subtype;
+	uint8_t ex_flags;
+} ItemData;
 
 #endif // !ENTITY_H_

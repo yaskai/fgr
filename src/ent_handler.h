@@ -4,29 +4,32 @@
 #ifndef ENT_HANDLER_H
 #define ENT_HANDLER_H
 
-#define ENT_ARENA_CAP	256	
+#define ENT_ARENA_CAP	1024	
 #define ENT_PLAYER_ID	0
 
 #define MAX_PLAYERS 	1
-#define MAX_ASTEROIDS 	((ENT_ARENA_CAP/2)-9) 
-#define MAX_FISH		(ENT_ARENA_CAP/2)
-#define MAX_NPCS		8
+#define MAX_ASTEROIDS 	(ENT_ARENA_CAP/3)
+#define MAX_FISH		(ENT_ARENA_CAP/3)
+#define MAX_NPCS		0
+#define MAX_ITEMS		((ENT_ARENA_CAP/3)-1)
 
 #define SHOW_DEBUG	0x01
 
 typedef struct {
 	uint16_t count;
+	uint16_t cap;
 
 	float time_mod;
 
-	Entity ents[ENT_ARENA_CAP];	
-	
 	uint16_t type_counts[ENT_TYPE_COUNT];
 
-	PlayerData player_data[MAX_PLAYERS];
-	AsteroidData asteroid_data[MAX_ASTEROIDS];
-	FishData fish_data[MAX_FISH];
-	NpcData npc_data[MAX_NPCS];
+	Entity *ents;
+
+	PlayerData *player_data;
+	AsteroidData *asteroid_data;
+	FishData *fish_data;
+	NpcData *npc_data;
+	ItemData *item_data;
 
 	SpriteLoader *sprite_loader;
 	Camera2D *camera;
@@ -43,6 +46,7 @@ void ReserveDataPlayer(EntHandler *handler, Entity *ent);
 void ReserveDataFish(EntHandler *handler, Entity *ent);
 void ReserveDataNpc(EntHandler *handler, Entity *ent);
 void ReserveDataAsteroid(EntHandler *handler, Entity *ent);
+void ReserveDataItem(EntHandler *handler, Entity *ent);
 
 void AsteroidSpawn(EntHandler *handler, Vector2 position);
 void FishSpawn(EntHandler *handler, Vector2 position);
