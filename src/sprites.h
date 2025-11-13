@@ -24,7 +24,7 @@ Spritesheet SpritesheetCreate(char *texture_path, Vector2 frame_dimensions);
 void SpritesheetClose(Spritesheet *spritesheet);
 
 void DrawSprite(Spritesheet *spritesheet, uint8_t frame_index, Vector2 position, uint8_t flags);
-void DrawSpritePro(Spritesheet *spritesheet, uint8_t frame_index, Vector2 position, float rotation, uint8_t flags);
+void DrawSpritePro(Spritesheet *spritesheet, uint8_t frame_index, Vector2 position, float rotation, float scale, uint8_t flags);
 
 uint8_t FrameIndex(Spritesheet *spritesheet, uint8_t c, uint8_t r);
 Rectangle GetFrameRec(uint8_t idx, Spritesheet *spritesheet);
@@ -43,7 +43,7 @@ typedef struct {
 SpriteAnimation AnimCreate(Spritesheet *spritesheet, uint8_t start_frame, uint8_t frame_count, float speed);
 void AnimPlay(SpriteAnimation *anim, float delta_time);
 void AnimDraw(SpriteAnimation *anim, Vector2 position, uint8_t flags);
-void AnimDrawPro(SpriteAnimation *anim, Vector2 position, float rotation, uint8_t flags);
+void AnimDrawPro(SpriteAnimation *anim, Vector2 position, float rotation, float scale, uint8_t flags);
 
 #define SPR_POOL_CAPACITY	255
 

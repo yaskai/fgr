@@ -29,14 +29,16 @@ ReserveDataFunc data_reserve_funcs[] = {
 	&ReserveDataFish,
 	&ReserveDataNpc,
 	&ReserveDataAsteroid,  
+	NULL
 };
 
 // Entity update function prototype and array 
 typedef void(*EntUpdateFunc)(Entity *ent, float dt);
 EntUpdateFunc ent_update_funcs[] = { 
 	&PlayerUpdate,
-	&AsteroidUpdate,
 	NULL,
+	NULL,
+	&AsteroidUpdate,
 	NULL
 };
 
@@ -44,8 +46,9 @@ EntUpdateFunc ent_update_funcs[] = {
 typedef void(*EntDrawFunc)(Entity *ent, SpriteLoader *sl);
 EntDrawFunc ent_draw_funcs[] = { 
 	&PlayerDraw,
-	&AsteroidDraw,
 	NULL,
+	NULL,
+	&AsteroidDraw,
 	NULL
 };
 
@@ -58,11 +61,11 @@ void EntHandlerInit(EntHandler *handler, SpriteLoader *sprite_loader, Camera2D *
 
 	handler->ents = calloc(ENT_ARENA_CAP, sizeof(Entity));
 
-	handler->player_data = calloc(MAX_PLAYERS, sizeof(PlayerData));
-	handler->asteroid_data = calloc(MAX_ASTEROIDS, sizeof(AsteroidData));
-	handler->fish_data = calloc(MAX_FISH, sizeof(FishData));
-	handler->npc_data = calloc(MAX_NPCS, sizeof(NpcData));
-	handler->item_data = calloc(MAX_ITEMS, sizeof(ItemData));
+	handler->player_data 	= calloc(MAX_PLAYERS, sizeof(PlayerData));
+	handler->fish_data 		= calloc(MAX_FISH, sizeof(FishData));
+	handler->npc_data 		= calloc(MAX_NPCS, sizeof(NpcData));
+	handler->asteroid_data 	= calloc(MAX_ASTEROIDS, sizeof(AsteroidData));
+	handler->item_data 		= calloc(MAX_ITEMS, sizeof(ItemData));
 }
 
 // Update all entities
@@ -145,6 +148,8 @@ void ReserveDataPlayer(EntHandler *handler, Entity *ent) {
 
 	PlayerData *p = ent->data;
 	p->time_mod = &handler->time_mod;
+
+	ent->scale = 1;
 }
 
 // Reserve data for entity of type "asteroid"
@@ -158,6 +163,8 @@ void ReserveDataAsteroid(EntHandler *handler, Entity *ent) {
 
 	// Set entity data pointers
 	ent->data = &handler->asteroid_data[data_id];
+
+	printf("reserved data for asteroid entity %d\n", data_id);
 }
 
 // Reserve data for entity of type "fish"
@@ -171,6 +178,8 @@ void ReserveDataFish(EntHandler *handler, Entity *ent) {
 
 	// Set entity data pointer
 	ent->data = &handler->fish_data[data_id];
+
+	printf("reserved data for fish entity %d\n", data_id);
 }
 
 // Reserve data for entity of type "npc"
@@ -184,18 +193,27 @@ void ReserveDataNpc(EntHandler *handler, Entity *ent) {
 
 	// Set entity data pointer
 	ent->data = &handler->fish_data[data_id];
+
+	printf("reserved data for npc entity %d\n", data_id);
 }
 
 // Spawn an asteroid entity at provided position
-void AsteroidSpawn(EntHandler *handler, Vector2 position) {
+void AsteroidSpawn(EntHandler *handler, Vector2 position, float scale, float angle_vel) {
 	int16_t id = EntMake(handler, ENT_ASTEROID);
 	if(id == -1) return;
 
 	Entity *ast = &handler->ents[id];
 	ast->position = position;
 	ast->type = ENT_ASTEROID;
-	ast->radius = handler->sprite_loader->spr_pool[1].frame_w * 0.5f;
-	ast->center_offset = (Vector2){ast->radius, ast->radius};
 	ast->flags |= ENT_IS_BODY;
+
+	AsteroidData *d = ast->data;
+	d->angle_vel = angle_vel;
+
+	ast->angle = 180 * RAD2DEG; 
+	ast->scale = scale;
+
+	ast->radius = handler->sprite_loader->spr_pool[1].frame_w * 0.5f * ast->scale;
+	ast->center_offset = (Vector2){ast->radius / ast->scale, ast->radius / ast->scale};
 }
 

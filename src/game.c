@@ -156,8 +156,10 @@ void MainStart(Game *game) {
 	
 	//game->ent_handler.ents[0].position = (Vector2){0, 0};
 
-	AsteroidSpawn(&game->ent_handler, (Vector2){0, 0});
-	AsteroidSpawn(&game->ent_handler, (Vector2){100, -300});
+	AsteroidSpawn(&game->ent_handler, (Vector2){0, 0}, 1, 0);
+	AsteroidSpawn(&game->ent_handler, (Vector2){100, -300}, 2, -0.2f);
+	AsteroidSpawn(&game->ent_handler, (Vector2){-1000, -40}, 2.1f, -1.06f);
+	AsteroidSpawn(&game->ent_handler, (Vector2){800, 200}, 3, -0.1f);
 
 	//AsteroidSpawn(&game->ent_handler, (Vector2){-400, -300});
 	//AsteroidSpawn(&game->ent_handler, (Vector2){500, 0});

@@ -9,16 +9,15 @@
 void RopeInit(Rope *rope, Vector2 pos) {
 	rope->length = ROPE_LENGTH;
 	rope->iterations = 32;
-	rope->dampening = 0.5f;
+	rope->dampening = 0.825f;
 	rope->segment_dist = 3.25f;
 	rope->start_id = 0;
 
-	//rope->nodes = MemAlloc(sizeof(RopeNode) * rope->length); 
 	rope->nodes = calloc(rope->length, sizeof(RopeNode));
 
 	for(uint8_t i = 1; i < rope->length; i++) {
 		RopeNode *node = &rope->nodes[i];
-		node->pos_curr = (Vector2){pos.x + GetRandomValue(-200, 200), pos.y + (i*rope->segment_dist)};
+		node->pos_curr = pos;
 		node->pos_prev = node->pos_curr;
 		node->mass = 1.0f;
 	}
@@ -49,7 +48,14 @@ void RopeIntegrate(Rope *rope, float dt) {
 		vel = Vector2Scale(vel, rope->dampening);
 		Vector2 accel = Vector2Scale(rope->gravity, dt2);
 		
+		Vector2 vel_transfer = (Vector2){0, 0};
+		if(i < ROPE_TAIL) {
+			vel_transfer = Vector2Scale(Vector2Subtract(rope->nodes[i+1].pos_curr, rope->nodes[i].pos_curr), 0.01f);
+			rope->nodes[i+1].pos_prev = Vector2Add(rope->nodes[i+1].pos_prev, vel_transfer);
+		}
+
 		node->pos_curr = Vector2Add(Vector2Add(node->pos_curr, vel), accel);
+
 		if(node->flags & NODE_PINNED) node->pos_curr = node->pos_prev;
 
 		node->pos_prev = new_prev;

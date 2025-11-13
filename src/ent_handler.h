@@ -48,7 +48,7 @@ void ReserveDataNpc(EntHandler *handler, Entity *ent);
 void ReserveDataAsteroid(EntHandler *handler, Entity *ent);
 void ReserveDataItem(EntHandler *handler, Entity *ent);
 
-void AsteroidSpawn(EntHandler *handler, Vector2 position);
+void AsteroidSpawn(EntHandler *handler, Vector2 position, float scale, float angle_vel);
 void FishSpawn(EntHandler *handler, Vector2 position);
 
 void PlayerSetHandler(EntHandler *handler);

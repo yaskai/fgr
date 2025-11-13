@@ -18,9 +18,9 @@
 
 enum ENT_TYPE {
 	ENT_PLAYER,		
-	ENT_ASTEROID,
 	ENT_FISH,
 	ENT_NPC,
+	ENT_ASTEROID,
 	ENT_ITEM
 };
 
@@ -88,6 +88,8 @@ typedef struct {
 	float jump_timer;
 	float jetpack_timer;
 
+	float harpoon_hit_angle;
+
 	float fuel;
 	float oxygen;
 
@@ -97,9 +99,13 @@ typedef struct {
 	Vector2 harpoon_pos;
 	Vector2 harpoon_vel;
 
+	Vector2 harpoon_hit_pos;
+
 	Vector2 cursor_pos;
 
 	float *time_mod;
+
+	Entity *harpoon_hit_ent;
 
 	Camera2D *camera;			// Pointer to camera instance
 	InputState *input;			// Pointer to input state instance
@@ -160,6 +166,8 @@ void HarpoonPull(Entity *player, float dt);
 typedef struct {
 	uint8_t ex_flags;
 	uint8_t state;
+
+	float angle_vel;
 } AsteroidData;
 
 void AsteroidUpdate(Entity *asteroid, float dt);

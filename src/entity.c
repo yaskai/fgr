@@ -8,8 +8,8 @@ void EntInit(Entity *ent, uint8_t type) {
 	
 }
 
+// Move entity by it's velocity scaled by delta time
 void EntUpdatePosition(Entity *ent, float dt) {
-	// Move entity by it's velocity scaled by delta time
 	ent->position = Vector2Add(ent->position, Vector2Scale(ent->velocity, dt));	
 }
 

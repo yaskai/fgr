@@ -38,6 +38,8 @@ void PlayerInit(Entity *player, SpriteLoader *sl, Camera2D *camera) {
 
 	p->rope = &rope;
 	RopeInit(p->rope, player->position);
+
+	player->scale = 1;
 }
 
 void PlayerSpawn(Entity *player, Vector2 position) {
@@ -94,19 +96,19 @@ void PlayerDraw(Entity *player, SpriteLoader *sl) {
 
 	switch(p->state) {
 		case PLR_IDLE:
-			DrawSpritePro(&sl->spr_pool[player->sprite_id], 0, player->position, player->sprite_angle, draw_flags);
+			DrawSpritePro(&sl->spr_pool[player->sprite_id], 0, player->position, player->sprite_angle, player->scale, draw_flags);
 			break;
 		
 		case PLR_RUN:
-			AnimDrawPro(p->run_anim, player->position, player->sprite_angle, draw_flags);
+			AnimDrawPro(p->run_anim, player->position, player->sprite_angle, player->scale, draw_flags);
 			break;
 
 		case PLR_JUMP:
-			DrawSpritePro(&sl->spr_pool[player->sprite_id], 2, player->position, player->sprite_angle, draw_flags);
+			DrawSpritePro(&sl->spr_pool[player->sprite_id], 2, player->position, player->sprite_angle, player->scale, draw_flags);
 			break;
 
 		case PLR_FALL:
-			DrawSpritePro(&sl->spr_pool[player->sprite_id], 3, player->position, player->sprite_angle, draw_flags);
+			DrawSpritePro(&sl->spr_pool[player->sprite_id], 3, player->position, player->sprite_angle, player->scale, draw_flags);
 			break;
 		
 		case PLR_CHARGE_SHOT:
@@ -277,7 +279,6 @@ void HarpoonUpdate(Entity *player, float dt) {
 	} else if(p->harpoon_state == HARPOON_EXTEND) {
 		p->rope->segment_dist = Lerp(p->rope->segment_dist, 4.0f, dt * 20);
 
-
 		if(p->rope->stretch >= p->rope->max_stretch && p->rope->segment_dist && rope.segment_dist >= 3.9f) {
 			rope_t -= dt;
 			if(rope_t < -2) {
@@ -289,17 +290,29 @@ void HarpoonUpdate(Entity *player, float dt) {
 	} else if(p->harpoon_state == HARPOON_PULL) {
 		HarpoonPull(player, dt);
  	} else if(p->harpoon_state == HARPOON_STUCK) {
+		if(p->harpoon_hit_angle != p->harpoon_hit_ent->angle) {
+			Vector2 offset = Vector2Subtract(p->harpoon_hit_pos, EntCenter(p->harpoon_hit_ent));
+			float angle_diff = p->harpoon_hit_ent->angle - p->harpoon_hit_angle;
+
+			Vector2 rot_offset = (Vector2) {
+				offset.x * cosf(angle_diff) - offset.y * sinf(angle_diff),
+				offset.x * sinf(angle_diff) + offset.y * cosf(angle_diff)
+			};
+
+			p->harpoon_pos = Vector2Add(EntCenter(p->harpoon_hit_ent), rot_offset);
+			RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], p->harpoon_pos);
+		}
+
 		Vector2 pull_dir = Vector2Normalize(Vector2Subtract(p->rope->nodes[1].pos_curr, EntCenter(player)));
 		//Vector2 pull_dir = Vector2Normalize(Vector2Subtract(p->harpoon_pos, EntCenter(player)));
-		float pull_amount = fabs(p->rope->stretch - p->rope->max_stretch) * 1.0f;
+		//Vector2 pull_dir = Vector2Normalize(Vector2Subtract(p->rope->nodes[64].pos_curr, EntCenter(player)));
+		float pull_amount = fabs(p->rope->stretch - p->rope->max_stretch) * 2.0f;
 
 		float dir_dot = Vector2DotProduct(pull_dir, Vector2Normalize(player->velocity));
 
 		float harpoon_dist = Vector2Distance(EntCenter(player), p->harpoon_pos);
 
 		bool pull = (
-			//Vector2DotProduct(pull_dir, Vector2Normalize(player->velocity)) < -0.7f &&
-			//dir_dot < -0.6f &&
 			dir_dot <= -0.7f &&
 			p->rope->stretch >= p->rope->max_stretch 
 		);
@@ -315,7 +328,10 @@ void HarpoonUpdate(Entity *player, float dt) {
 
 	p->harpoon_pos = Vector2Add(p->harpoon_pos, Vector2Scale(p->harpoon_vel, dt));
 
+	//Vector2 new_pos = Vector2Lerp(p->rope->nodes[0].pos_curr, EntCenter(player), dt * 20);
+	//RopeNodeSetPos(&p->rope->nodes[0], new_pos);
 	RopeNodeSetPos(&p->rope->nodes[0], EntCenter(player));
+
 	RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], p->harpoon_pos);
 	//p->rope->gravity = Vector2Scale((Vector2){cosf(player->angle), sinf(player->angle)}, -p->grav_force * 0.001f);
 
@@ -342,6 +358,10 @@ void HarpoonCollision(Entity *player, float dt) {
   		if(CheckCollisionCircles(EntCenter(ent), ent->radius * 1.25f, p->harpoon_pos, 1.0f)) {
 			p->harpoon_state = HARPOON_STUCK;
 			p->harpoon_vel = Vector2Zero();
+
+			p->harpoon_hit_ent = ent;
+			p->harpoon_hit_angle = ent->angle;
+			p->harpoon_hit_pos = p->harpoon_pos;
 		}
 	}
 }
@@ -397,31 +417,32 @@ void HarpoonShoot(Entity *player, Vector2 dir) {
 
 void HarpoonRetract(Entity *player, float dt) {
 	PlayerData *p = player->data;
+	Rope *rope = p->rope;
 
-	p->rope->nodes[ROPE_TAIL].flags &= ~NODE_PINNED;
+	rope->nodes[ROPE_TAIL].flags &= ~NODE_PINNED;
 
 	//p->harpoon_vel = Vector2Zero();
-	RopeNodeSetPos(&p->rope->nodes[0], EntCenter(player));
+	RopeNodeSetPos(&rope->nodes[0], EntCenter(player));
 
 	//p->rope->segment_dist = Lerp(p->rope->segment_dist, p->rope->segment_dist * 0.25f, dt * 20);
 	p->rope->segment_dist *= (0.9999f * dt);
 
-	for(uint8_t i = 0; i < ROPE_LENGTH; i++) {
-		RopeNode *node = &p->rope->nodes[i];
+	for(uint8_t i = 1; i < ROPE_LENGTH; i++) {
+		RopeNode *node = &rope->nodes[i];
 		
 		Vector2 to_player = Vector2Normalize(Vector2Subtract(node->pos_curr, EntCenter(player))); 
 		node->pos_prev = Vector2Add(node->pos_prev, Vector2Scale(to_player, dt));
 	}
 
-	if(p->rope->segment_dist < 1) 
-		p->rope->iterations = 128;
+	if(rope->segment_dist < 1) 
+		rope->iterations = 128;
 
-	RopeUpdate(p->rope, dt);
+	RopeUpdate(rope, dt);
 
-	if(Vector2Distance(p->rope->nodes[ROPE_TAIL].pos_curr, EntCenter(player)) <= player->radius * 2) {
+	if(Vector2Distance(rope->nodes[ROPE_TAIL].pos_curr, EntCenter(player)) <= player->radius * 2) {
 		p->ex_flags &= ~HARPOON_ACTIVE;
 		p->harpoon_state = 0;
-		p->rope->iterations = 16;
+		rope->iterations = 16;
 	}
 }
 
@@ -447,11 +468,9 @@ void HarpoonPull(Entity *player, float dt) {
 	player->position = Vector2Lerp(player->position, new_pos, dt * 10);
 
 	Vector2 to_node = Vector2Normalize(Vector2Subtract(p->rope->nodes[p->rope->start_id].pos_curr, EntCenter(player)));
-	//Vector2 to_node = Vector2Normalize(Vector2Subtract(p->rope->nodes[ROPE_TAIL].pos_curr, EntCenter(player)));
 	Vector2 wish_vel = Vector2Scale(to_node, 4.0f);
-	//player->velocity = Vector2Lerp(player->velocity, wish_vel, dt * 10);
-	player->velocity = wish_vel;
-	//player->velocity = Vector2Add(player->velocity, wish_vel);
+	//player->velocity = wish_vel;
+	player->velocity = Vector2Add(player->velocity, wish_vel);
 
 	//player->angle = atan2f(-to_node.y, to_node.x) * DEG2RAD - (0 * DEG2RAD);
 	//player->sprite_angle = atan2f(-to_node.y, to_node.x);

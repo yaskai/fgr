@@ -46,7 +46,7 @@ void DrawSprite(Spritesheet *spritesheet, uint8_t frame_index, Vector2 position,
 }
 
 // Draw a spritesheet frame from base texture at provided position (with rotation)
-void DrawSpritePro(Spritesheet *spritesheet, uint8_t frame_index, Vector2 position, float rotation, uint8_t flags) {
+void DrawSpritePro(Spritesheet *spritesheet, uint8_t frame_index, Vector2 position, float rotation, float scale, uint8_t flags) {
 	if(!(spritesheet->flags & SPR_TEX_VALID)) return;
 
 	Rectangle src_rec = GetFrameRec(frame_index, spritesheet);
@@ -58,15 +58,15 @@ void DrawSpritePro(Spritesheet *spritesheet, uint8_t frame_index, Vector2 positi
 		src_rec,
 
 		(Rectangle) {
-			position.x + spritesheet->frame_w * 0.5f,
-			position.y + spritesheet->frame_h * 0.5f,
-			spritesheet->frame_w,
-			spritesheet->frame_h
+			position.x + (spritesheet->frame_w * 0.5f),
+			position.y + (spritesheet->frame_h * 0.5f),
+			spritesheet->frame_w * scale,
+			spritesheet->frame_h * scale
 		},
 
-		(Vector2){spritesheet->frame_w * 0.5f, spritesheet->frame_h * 0.5f},
+		(Vector2){(spritesheet->frame_w * 0.5f) * scale, (spritesheet->frame_h * 0.5f) * scale},
 		rotation,
-		WHITE
+		WHITE	
 	);
 }
 
@@ -119,8 +119,8 @@ void AnimDraw(SpriteAnimation *anim, Vector2 position, uint8_t flags) {
 }
 
 // Draw current frame of provided sprite animation (with rotation)
-void AnimDrawPro(SpriteAnimation *anim, Vector2 position, float rotation, uint8_t flags) {
-	DrawSpritePro(anim->spritesheet, anim->cur_frame, position, rotation, flags);
+void AnimDrawPro(SpriteAnimation *anim, Vector2 position, float rotation, float scale, uint8_t flags) {
+	DrawSpritePro(anim->spritesheet, anim->cur_frame, position, rotation, scale, flags);
 }
 
 // Load a spritesheet, push to sprite stack
