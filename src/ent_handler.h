@@ -52,5 +52,6 @@ void AsteroidSpawn(EntHandler *handler, Vector2 position, float scale, float ang
 void FishSpawn(EntHandler *handler, Vector2 position);
 
 void PlayerSetHandler(EntHandler *handler);
+void RopeSetHandler(EntHandler *handler);
 
 #endif

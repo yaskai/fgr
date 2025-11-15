@@ -12,5 +12,6 @@ void LoadSpritesAll(SpriteLoader *sl) {
 	AddSpriteAnim(&sl->spr_pool[0], FrameIndex(&sl->spr_pool[0], 0, 1), 4, 1, sl);
 
 	LoadSpritesheet("resources/asteroid00.png", (Vector2){128, 128}, sl);
+	LoadSpritesheet("resources/fish01.png", (Vector2){128, 128}, sl);
 }
 

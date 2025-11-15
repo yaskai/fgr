@@ -36,7 +36,7 @@ ReserveDataFunc data_reserve_funcs[] = {
 typedef void(*EntUpdateFunc)(Entity *ent, float dt);
 EntUpdateFunc ent_update_funcs[] = { 
 	&PlayerUpdate,
-	NULL,
+	&FishUpdate,
 	NULL,
 	&AsteroidUpdate,
 	NULL
@@ -46,7 +46,7 @@ EntUpdateFunc ent_update_funcs[] = {
 typedef void(*EntDrawFunc)(Entity *ent, SpriteLoader *sl);
 EntDrawFunc ent_draw_funcs[] = { 
 	&PlayerDraw,
-	NULL,
+	&FishDraw,
 	NULL,
 	&AsteroidDraw,
 	NULL
@@ -210,10 +210,25 @@ void AsteroidSpawn(EntHandler *handler, Vector2 position, float scale, float ang
 	AsteroidData *d = ast->data;
 	d->angle_vel = angle_vel;
 
-	ast->angle = 180 * RAD2DEG; 
+	ast->angle = GetRandomValue(0, 360) * DEG2RAD; 
 	ast->scale = scale;
 
 	ast->radius = handler->sprite_loader->spr_pool[1].frame_w * 0.5f * ast->scale;
 	ast->center_offset = (Vector2){ast->radius / ast->scale, ast->radius / ast->scale};
+}
+
+void FishSpawn(EntHandler *handler, Vector2 position) {
+	int16_t id = EntMake(handler, ENT_FISH);
+	if(id == -1) return;
+	
+	Entity *fish = &handler->ents[id];
+
+	fish->position = position;
+	fish->scale = 1;
+
+	fish->type = ENT_FISH;
+
+	fish->radius = handler->sprite_loader->spr_pool[2].frame_w * 0.5f * fish->scale;
+	fish->center_offset = (Vector2){fish->radius / fish->scale, fish->radius / fish->scale};
 }
 

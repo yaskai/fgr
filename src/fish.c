@@ -1,5 +1,6 @@
+#include <stdio.h>
+#include "raylib.h"
 #include "entity.h"
-#include <raylib.h>
 
 void FishUpdate(Entity *fish, float dt) {
 	FishData *f = fish->data;	
@@ -9,7 +10,6 @@ void FishUpdate(Entity *fish, float dt) {
 
 void FishDraw(Entity *fish, SpriteLoader *sl) {
 	FishData *f = fish->data;	
-
-	DrawCircleV(EntCenter(fish), fish->radius, GOLD);
+	DrawSpritePro(&sl->spr_pool[2], 0, fish->position, fish->sprite_angle, fish->scale, 0);
 }
 

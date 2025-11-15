@@ -150,16 +150,19 @@ void MainStart(Game *game) {
 	EntMake(&game->ent_handler, ENT_PLAYER);
 	game->ent_handler.ents[0].position = (Vector2){-90, 100};
 	PlayerSetHandler(&game->ent_handler);
+	RopeSetHandler(&game->ent_handler);
 
 	PlayerData *p = game->ent_handler.ents[0].data;
 	p->input = &game->input_state;
 	
 	//game->ent_handler.ents[0].position = (Vector2){0, 0};
 
-	AsteroidSpawn(&game->ent_handler, (Vector2){0, 0}, 1, 0);
-	AsteroidSpawn(&game->ent_handler, (Vector2){100, -300}, 2, -0.2f);
+	//AsteroidSpawn(&game->ent_handler, (Vector2){0, 0}, 1, 0);
+	AsteroidSpawn(&game->ent_handler, (Vector2){100, -300}, 2, -3.2f);
 	AsteroidSpawn(&game->ent_handler, (Vector2){-1000, -40}, 2.1f, -1.06f);
 	AsteroidSpawn(&game->ent_handler, (Vector2){800, 200}, 3, -0.1f);
+	
+	FishSpawn(&game->ent_handler, (Vector2){30, 0});
 
 	//AsteroidSpawn(&game->ent_handler, (Vector2){-400, -300});
 	//AsteroidSpawn(&game->ent_handler, (Vector2){500, 0});

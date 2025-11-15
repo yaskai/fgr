@@ -23,6 +23,7 @@ typedef struct {
 	uint8_t length;
 	uint8_t iterations;
 	uint8_t start_id;
+	uint8_t coll_id;
 
 	float segment_dist;
 	float dampening;
@@ -37,6 +38,9 @@ typedef struct {
 void RopeInit(Rope *rope, Vector2 pos);
 void RopeIntegrate(Rope *rope, float dt);
 void RopeSolveConstraints(Rope *rope, float dt);
+void RopeCollision(Rope* rope, float dt);
+void RopeDiffuse(Rope *rope, float dt);
+
 void RopeUpdate(Rope *rope, float dt);
 void RopeDraw(Rope *rope);
 

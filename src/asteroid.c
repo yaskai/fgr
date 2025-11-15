@@ -10,6 +10,8 @@ void AsteroidUpdate(Entity *asteroid, float dt)
 	if(asteroid->angle > 360 * DEG2RAD) asteroid->angle = 0 * DEG2RAD;
 	else if(asteroid->angle < 0 * DEG2RAD) asteroid->angle = 360 * DEG2RAD;
 
+	//asteroid->sprite_angle = asteroid->angle * RAD2DEG;
+
 	asteroid->sprite_angle = asteroid->angle * RAD2DEG;
 }
 
@@ -27,5 +29,5 @@ void AsteroidDraw(Entity *asteroid, SpriteLoader *sl)
 	AsteroidData *d = asteroid->data;
 
 	//DrawText(TextFormat("%d", asteroid->type), asteroid->position.x, asteroid->position.y, 30, RAYWHITE);
-	DrawText(TextFormat("%f", d->angle_vel), asteroid->position.x, asteroid->position.y, 30, RAYWHITE);
+	//DrawText(TextFormat("%f", d->angle_vel), asteroid->position.x, asteroid->position.y, 30, RAYWHITE);
 }
