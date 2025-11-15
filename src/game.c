@@ -118,6 +118,10 @@ void TitleDraw(Game *game, uint8_t flags) {
 
 // Main gameplay loop logic
 void MainUpdate(Game *game, float delta_time) {
+	game->ent_handler.game_timer += delta_time;
+	if(game->ent_handler.game_timer >= 180)
+		game->state = GAME_END;
+
 	EntHandlerUpdate(&game->ent_handler, delta_time);
 }
 
@@ -131,12 +135,24 @@ void MainDraw(Game *game, uint8_t flags) {
 	EndMode2D();
 	
 	// No camera transformations:
+	int total  = (int)game->ent_handler.game_timer;
+	int minute = total / 60;
+	int second = total % 60;
+	DrawText(TextFormat("%02d:%02d", (int)minute, (int)second), 32, 32, 64, RAYWHITE);
 }
 
 void OverScreenUpdate(Game *game, float delta_time) {
+	if(IsKeyPressed(KEY_SPACE)) {
+		MainStart(game);
+	}
 }
 
 void OverScreenDraw(Game *game, uint8_t flags) {
+	Vector2 screen_center = Vector2Scale((Vector2){VIRTUAL_WIDTH, VIRTUAL_HEIGHT}, 0.5f);
+	char *prompt_text = (game->input_method == KEYBOARD) ? "press space to play again" : "press A to play";
+
+	DrawText(TextFormat("Caught %d fish!", game->ent_handler.fish_collected), screen_center.x - 180, screen_center.y - 100, 50, RAYWHITE);
+	DrawText(prompt_text, screen_center.x - 160, screen_center.y + 100, 32, RAYWHITE);
 }
 
 void OptionsScreenUpdate(Game *game, float delta_time) {
@@ -147,6 +163,8 @@ void OptionsScreenDraw(Game *game, uint8_t flags) {
 
 // Start gameplay
 void MainStart(Game *game) {
+	EntHandlerClear(&game->ent_handler);
+
 	EntMake(&game->ent_handler, ENT_PLAYER);
 	game->ent_handler.ents[0].position = (Vector2){-90, 100};
 	PlayerSetHandler(&game->ent_handler);
@@ -163,9 +181,13 @@ void MainStart(Game *game) {
 	AsteroidSpawn(&game->ent_handler, (Vector2){800, 200}, 3, -0.1f);
 	
 	FishSpawn(&game->ent_handler, (Vector2){30, 0});
+	FishSpawn(&game->ent_handler, (Vector2){100, 0});
+	FishSpawn(&game->ent_handler, (Vector2){0, -100});
 
-	//AsteroidSpawn(&game->ent_handler, (Vector2){-400, -300});
-	//AsteroidSpawn(&game->ent_handler, (Vector2){500, 0});
+	//AsteroidSpawn(&game->ent_handler, (Vector2){-400, -300}, 2.1f, -1.06f);
+	//AsteroidSpawn(&game->ent_handler, (Vector2){500, 0},  2.1f, -1.06f);
+
 	game->state = GAME_MAIN;
+	game->ent_handler.game_timer = 0;
 }
 

@@ -105,6 +105,7 @@ void RopeSolveConstraints(Rope *rope, float dt) {
 	}
 }
 
+/*
 void RopeCollision(Rope *rope, float dt) {
 	if(rope_handler_ptr == NULL) return;
 	EntHandler *handler = rope_handler_ptr;
@@ -143,6 +144,44 @@ void RopeCollision(Rope *rope, float dt) {
 				rope->coll_id = i;
 
 				break;
+			}
+		}	
+	}
+}
+*/
+
+void RopeCollision(Rope *rope, float dt) {
+	if(rope_handler_ptr == NULL) return;
+	EntHandler *handler = rope_handler_ptr;
+
+	for(uint8_t i = 0; i < rope->length - 1; i++) {
+		RopeNode *node = &rope->nodes[i];
+		if(node->flags & NODE_PINNED) continue;
+
+		for(uint16_t j = 0; j < handler->count; j++) {
+			Entity *ent = &handler->ents[j];		
+			
+			if(!(ent->flags & ENT_IS_BODY)) continue;
+
+			Vector2 center = EntCenter(ent);
+			Vector2 to_node = Vector2Subtract(node->pos_curr, center);
+			float dist = Vector2Length(to_node);
+
+			if(dist <= ent->radius && dist > 0) {
+				Vector2 norm = Vector2Normalize(to_node);
+
+				float depth = ent->radius - dist;
+
+				node->pos_curr = Vector2Add(center, Vector2Scale(norm, ent->radius * 1.01f));
+
+				Vector2 vel = Vector2Subtract(node->pos_curr, node->pos_prev);
+
+				float vel_to_body = Vector2DotProduct(vel, norm);
+				if(vel_to_body < 0) 
+					vel = Vector2Subtract(vel, Vector2Scale(norm, vel_to_body * 1.25f));
+
+				vel = Vector2Scale(vel, 0.59f);
+				node->pos_prev = Vector2Subtract(node->pos_curr, vel);
 			}
 		}	
 	}

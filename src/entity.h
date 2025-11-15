@@ -98,8 +98,8 @@ typedef struct {
 
 	Vector2 harpoon_pos;
 	Vector2 harpoon_vel;
-
 	Vector2 harpoon_hit_pos;
+	Vector2 harpoon_offset;
 
 	Vector2 cursor_pos;
 

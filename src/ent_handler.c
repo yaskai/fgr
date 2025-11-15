@@ -66,6 +66,9 @@ void EntHandlerInit(EntHandler *handler, SpriteLoader *sprite_loader, Camera2D *
 	handler->npc_data 		= calloc(MAX_NPCS, sizeof(NpcData));
 	handler->asteroid_data 	= calloc(MAX_ASTEROIDS, sizeof(AsteroidData));
 	handler->item_data 		= calloc(MAX_ITEMS, sizeof(ItemData));
+
+	handler->game_timer = 0.01f;
+	handler->fish_collected = 0;
 }
 
 // Update all entities
@@ -101,6 +104,14 @@ void EntHandlerDraw(EntHandler *handler, uint8_t flags) {
 	Entity *player_ent = &handler->ents[0];	
 	PlayerData *p = player_ent->data;
 	player_ent->draw(player_ent, handler->sprite_loader);
+}
+
+void EntHandlerClear(EntHandler *handler) {
+	handler->count = 0;
+
+	for(uint8_t i = 0; i < ENT_TYPE_COUNT; i++) {
+		handler->type_counts[i] = 0;
+	}
 }
 
 // Create a new entity and add to pool (corresponding to entity type)

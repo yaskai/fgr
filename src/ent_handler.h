@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdlib.h>
 #include "entity.h"
 
@@ -18,8 +19,11 @@
 typedef struct {
 	uint16_t count;
 	uint16_t cap;
+	
+	uint16_t fish_collected;
 
 	float time_mod;
+	float game_timer;
 
 	uint16_t type_counts[ENT_TYPE_COUNT];
 
@@ -38,6 +42,8 @@ typedef struct {
 void EntHandlerInit(EntHandler *handler, SpriteLoader *sl, Camera2D *camera);
 void EntHandlerUpdate(EntHandler *handler, float dt);
 void EntHandlerDraw(EntHandler *handler, uint8_t flags);
+
+void EntHandlerClear(EntHandler *handler);
 
 // Create an entity instance, returns entity's index, -1 if instance fails
 int16_t EntMake(EntHandler *handler, uint8_t type);
