@@ -101,6 +101,8 @@ typedef struct {
 	Vector2 harpoon_hit_pos;
 	Vector2 harpoon_offset;
 
+	Vector2 fling_vel;
+
 	Vector2 cursor_pos;
 
 	float *time_mod;

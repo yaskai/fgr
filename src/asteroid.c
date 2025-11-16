@@ -6,11 +6,9 @@ void AsteroidUpdate(Entity *asteroid, float dt)
 {
 	AsteroidData *d = asteroid->data;
 
-	/*
 	asteroid->angle += d->angle_vel * dt;
 	if(asteroid->angle > 360 * DEG2RAD) asteroid->angle = 0 * DEG2RAD;
 	else if(asteroid->angle < 0 * DEG2RAD) asteroid->angle = 360 * DEG2RAD;
-	*/
 
 	asteroid->sprite_angle = asteroid->angle * RAD2DEG;
 }
