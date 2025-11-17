@@ -208,7 +208,7 @@ void PlayerInput(Entity *player, float dt) {
 			if(IsKeyPressed(KEY_R)) {
 				p->harpoon_state = HARPOON_NONE;
 				p->ex_flags &= ~HARPOON_ACTIVE;
-				player->velocity = Vector2Add(player->velocity, p->fling_vel);
+				//player->velocity = Vector2Subtract(player->velocity, Vector2Scale(p->fling_vel, 0.01f));
 				//player->velocity = p->fling_vel;
 			}
 
@@ -633,8 +633,9 @@ void HarpoonReel(Entity *player, float dt) {
 
 	p->rope->segment_dist *= 0.99f;
 	//p->rope->nodes[ROPE_TAIL].flags &= ~NODE_PINNED;
-	p->harpoon_pos = EntCenter(fish);
-	RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], EntCenter(fish));
+	//p->harpoon_pos = EntCenter(fish);
+	p->harpoon_pos = Vector2Add(fish->position, p->harpoon_offset);
+	RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], p->harpoon_pos);
 
 	if(p->rope->segment_dist < 1) 
 		p->rope->iterations = 128;

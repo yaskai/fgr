@@ -23,12 +23,13 @@ void MapLoad(EntHandler *handler, char *path) {
 			curr_ent = &handler->ents[curr_id];
 
 			if(!strcmp(name, "player")) {
-				ReserveDataPlayer(handler, curr_ent);
+				//ReserveDataPlayer(handler, curr_ent);
 			} else if(!strcmp(name, "asteroid")) {
-				ReserveDataAsteroid(handler, curr_ent);
+				//ReserveDataAsteroid(handler, curr_ent);
 			} else if(!strcmp(name, "fish_spawner")) {
-				ReserveDataFish(handler, curr_ent);
+				//ReserveDataFish(handler, curr_ent);
 			} else if(!strcmp(name, "item_spawner")) {
+
 			}
 
 			curr_id++;
