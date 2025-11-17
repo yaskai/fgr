@@ -21,7 +21,7 @@ DrawFunc game_draw_funcs[] = { TitleDraw, MainDraw, OverScreenDraw };
 void GameInit(Game *game) {
 	// Initialize config struct and read options from file
 	game->conf = (Config){0};
-	ConfigRead(&game->conf, "options.txt");
+	ConfigRead(&game->conf, "options.conf");
 
 	// Initialize camera
 	game->cam = (Camera2D) {
