@@ -4,19 +4,24 @@
 
 ## Run Instructions
 
-Step one for all platforms is cloning the repo
-either: 
+*Step one for all platforms is cloning the repo
+ either: 
 
-through git gui
+ through git gui
 
-OR 
+ OR 
 
-running this commmand in your terminal
-``` bash
-git clone https://github.com/yaskai/fgr
-```
+ running this commmand in your terminal
+ ``` bash
+ git clone https://github.com/yaskai/fgr
+ ```
 
 ### Linux
+
+* Navigate to the bin directory 
+``` bash
+cd ./bin
+```
 
 ### Macos
 
