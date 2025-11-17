@@ -40,3 +40,7 @@ Run executable
 
 ### Windows
 
+The game is developed primarily on Linux so a Windows executable is not typically present in the repo.
+
+Your options are either to compile the game from source yourself or to ask me for a build.
+
