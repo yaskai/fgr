@@ -1,11 +1,11 @@
 --- 
 
-### Fish Game 
+# Fish Game 
 
 ## Run Instructions
 
-# Linux
+### Linux
 
-# Macos
+### Macos
 
-# Windows
+### Windows
