@@ -4,23 +4,35 @@
 
 ## Run Instructions
 
-*Step one for all platforms is cloning the repo
- either: 
+Step one for all platforms is cloning the repo
+either: 
 
- through git gui
+through git gui
 
- OR 
+OR 
 
- running this commmand in your terminal
- ``` bash
- git clone https://github.com/yaskai/fgr
- ```
+running this commmand in your terminal
+``` bash
+git clone https://github.com/yaskai/fgr
+```
+
+Then navigate to the directory of the repository
 
 ### Linux
 
-* Navigate to the bin directory 
+Navigate to the bin directory 
 ``` bash
 cd ./bin
+```
+
+Change permissisions of the executable
+``` bash
+chmod +x ./game
+```
+
+Run executable
+``` bash
+./game
 ```
 
 ### Macos
