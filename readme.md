@@ -16,11 +16,14 @@ running this commmand in your terminal
 git clone https://github.com/yaskai/fgr
 ```
 
-Then navigate to the directory of the repository
+### Unix (MacOS + Linux)
 
-### Linux
+Navigate to root directory
+``` bash
+cd fgr
+```
 
-Navigate to the bin directory 
+Then bin
 ``` bash
 cd ./bin
 ```
@@ -35,6 +38,5 @@ Run executable
 ./game
 ```
 
-### Macos
-
 ### Windows
+
