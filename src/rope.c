@@ -8,6 +8,8 @@
 #define GRAVITY (Vector2){0, 30}
 #define dt2		(dt * dt)
 
+bool allocated = false;
+
 EntHandler *rope_handler_ptr = NULL;
 void RopeSetHandler(EntHandler *handler) { rope_handler_ptr = handler; }
 
@@ -18,7 +20,8 @@ void RopeInit(Rope *rope, Vector2 pos) {
 	rope->segment_dist = 3.25f;
 	rope->start_id = 0;
 
-	rope->nodes = calloc(rope->length, sizeof(RopeNode));
+	if(!allocated)
+		rope->nodes = calloc(rope->length, sizeof(RopeNode));
 
 	for(uint8_t i = 1; i < rope->length; i++) {
 		RopeNode *node = &rope->nodes[i];

@@ -93,6 +93,8 @@ typedef struct {
 	float fuel;
 	float oxygen;
 
+	float fling_timer;
+
 	Vector2 orbit_dir;
 	Vector2 orbit_vel;			// X for circular movement and Y for height/distance 
 
@@ -115,6 +117,8 @@ typedef struct {
 	SpriteAnimation *run_anim;
 
 	Rope *rope;
+
+	//Vector2 fling_points[32];
 } PlayerData;
 
 enum PLAYER_STATES {
@@ -135,6 +139,7 @@ enum PLAYER_STATES {
 #define PLR_CUT_GRAV	   1850.0f
 
 #define HARPOON_ACTIVE		0x01
+#define PLR_FLING 			0x02
 
 enum harpoon_state {
 	HARPOON_NONE,

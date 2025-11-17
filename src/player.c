@@ -196,6 +196,11 @@ void PlayerInput(Entity *player, float dt) {
 				}
 			}
 
+			if(IsKeyPressed(KEY_X) && p->harpoon_hit_ent->type == ENT_ASTEROID) {
+				p->harpoon_state = HARPOON_NONE;
+				p->ex_flags &= ~HARPOON_ACTIVE;
+			}
+
 			//p->camera->zoom = Lerp(p->camera->zoom, 1 - (p->rope->stretch * 0.0001f), dt * 10);
 			mid = Vector2Subtract(p->camera->target, EntCenter(player));
 			p->camera->target = Vector2Lerp(p->camera->target, mid, dt);
@@ -205,12 +210,14 @@ void PlayerInput(Entity *player, float dt) {
 		case HARPOON_PULL:
 			HarpoonPull(player, dt);
 			
+			/*
 			if(IsKeyPressed(KEY_R)) {
 				p->harpoon_state = HARPOON_NONE;
 				p->ex_flags &= ~HARPOON_ACTIVE;
 				//player->velocity = Vector2Subtract(player->velocity, Vector2Scale(p->fling_vel, 0.01f));
 				//player->velocity = p->fling_vel;
 			}
+			*/	
 
 			break;
 
@@ -550,13 +557,13 @@ void HarpoonRetract(Entity *player, float dt) {
 	if(rope->segment_dist < 1) 
 		rope->iterations = 128;
 
-	RopeUpdate(rope, dt);
-
 	if(Vector2Distance(rope->nodes[ROPE_TAIL].pos_curr, EntCenter(player)) <= player->radius * 2) {
 		p->ex_flags &= ~HARPOON_ACTIVE;
 		p->harpoon_state = 0;
 		rope->iterations = 16;
 	}
+
+	RopeUpdate(rope, dt);
 }
 
 void HarpoonPull(Entity *player, float dt) {
@@ -625,6 +632,8 @@ void HarpoonPull(Entity *player, float dt) {
 
 		screenshake = 0.1f;
 	}
+
+	RopeUpdate(p->rope, dt);
 }
 
 void HarpoonReel(Entity *player, float dt) {
@@ -667,6 +676,6 @@ void HarpoonReel(Entity *player, float dt) {
 		ent_handler->fish_collected++;
 	}
 
-	//RopeUpdate(p->rope, dt);
+	RopeUpdate(p->rope, dt);
 }
 

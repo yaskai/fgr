@@ -67,7 +67,7 @@ void EntHandlerInit(EntHandler *handler, SpriteLoader *sprite_loader, Camera2D *
 	handler->asteroid_data 	= calloc(MAX_ASTEROIDS, sizeof(AsteroidData));
 	handler->item_data 		= calloc(MAX_ITEMS, sizeof(ItemData));
 
-	handler->game_timer = 0.01f;
+	handler->game_timer = 0.0f;
 	handler->fish_collected = 0;
 }
 
