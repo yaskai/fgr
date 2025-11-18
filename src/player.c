@@ -714,12 +714,15 @@ void HarpoonReel(Entity *player, float dt) {
 }
 
 void PlayerApplyFling(Entity *player, Entity *ent, float dt) {
+	// Don't add fling velocity if entity is null
 	if(!ent) return;
 
 	PlayerData *p = player->data;
 
+	// Don't add fling velocity if harpoon is active
 	if(p->ex_flags & HARPOON_ACTIVE) return;
 
+	// Decrement timer, exit if timer is completed
 	p->fling_timer -= dt;	
 	if(p->fling_timer <= 0) {
 		p->ex_flags &= ~PLR_FLING;
@@ -729,7 +732,8 @@ void PlayerApplyFling(Entity *player, Entity *ent, float dt) {
 	Vector2 to_ent = Vector2Subtract(EntCenter(ent), EntCenter(player));
 	to_ent = Vector2Normalize(to_ent);
 
-	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, (55 - p->fling_timer * 2) * dt));	
+	// Add velocity
+	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, (35 - p->fling_timer * 2) * dt));	
 	player->velocity = Vector2Add(player->velocity, Vector2Scale(p->fling_vel, (1.0f - (p->fling_timer * 1.75f)) * dt));
 }
 
