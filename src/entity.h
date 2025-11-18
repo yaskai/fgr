@@ -170,6 +170,8 @@ void HarpoonRetract(Entity *player, float dt);
 void HarpoonPull(Entity *player, float dt);
 void HarpoonReel(Entity *player, float dt);
 
+void PlayerApplyFling(Entity *player, Entity *ent, float dt);
+
 // *** ASTEROID ***
 //
 typedef struct {
