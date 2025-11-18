@@ -422,7 +422,7 @@ void HarpoonUpdate(Entity *player, float dt) {
 			player->velocity = Vector2Lerp(player->velocity, Vector2Zero(), dt * 0.01f);
 			player->velocity = Vector2Subtract(player->velocity, Vector2Scale(tan_vel, dt * 1.0f));
 
-			p->fling_vel = Vector2Scale(player->velocity, -1.5f);
+			p->fling_vel = Vector2Scale(player->velocity, -1.0f);
 
 			p->fling_timer += (Vector2Length(tan_vel) * 0.1f) * dt;
 			p->fling_timer = Clamp(p->fling_timer, 0, 1);
@@ -716,6 +716,7 @@ void PlayerApplyFling(Entity *player, Entity *ent, float dt) {
 	Vector2 to_ent = Vector2Subtract(EntCenter(ent), EntCenter(player));
 	to_ent = Vector2Normalize(to_ent);
 
-	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, 100 * dt));	
+	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, (25 - p->fling_timer) * dt));	
+	player->velocity = Vector2Add(player->velocity, Vector2Scale(p->fling_vel, (1.0f - p->fling_timer) * dt));
 }
 
