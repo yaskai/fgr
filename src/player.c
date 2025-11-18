@@ -9,6 +9,11 @@
 #include "ent_handler.h"
 #include "kmath.h"
 
+#define PLAYER_MAX_VEL 		50.0f
+#define CAM_ZOOM_DEFAULT 	0.9f
+#define CAM_ZOOM_FOCUSED	1.2f
+#define SCREENSHAKE_MAX		100
+
 Rope rope = (Rope){0};
 
 EntHandler *ent_handler = NULL;
@@ -250,6 +255,8 @@ void PlayerPhysicsFreeFloat(Entity *player, float dt) {
 	PlayerApplyFling(player, p->harpoon_hit_ent, dt);
 
 	PlayerCameraControls(player, dt);
+
+	player->velocity = Vector2ClampValue(player->velocity, -PLAYER_MAX_VEL, PLAYER_MAX_VEL);
 }
 
 void PlayerCameraControls(Entity *player, float dt) {
@@ -265,22 +272,25 @@ void PlayerCameraControls(Entity *player, float dt) {
 	cam->rotation = Lerp(cam->rotation, rot_target, 5 * dt);
 
 	if(screenshake > 0) {
-		Vector2 offset = (Vector2) { GetRandomValue(-100, 100) * screenshake, GetRandomValue(-100, 100) * screenshake };
+		short shake_x = GetRandomValue(-SCREENSHAKE_MAX, SCREENSHAKE_MAX) * screenshake;
+		short shake_y = GetRandomValue(-SCREENSHAKE_MAX, SCREENSHAKE_MAX) * screenshake;
+
+		Vector2 offset = (Vector2) { shake_x, shake_y };
 		cam->target = Vector2Add(cam->target, offset);
 		
 		screenshake -= dt;
 	} 
 
-	if(p->harpoon_state == HARPOON_AIM) {
-	}
-
 	switch(p->harpoon_state) {
 		case HARPOON_NONE:
+			p->camera->zoom = 
+				Lerp(p->camera->zoom, CAM_ZOOM_DEFAULT - (Vector2Length(Vector2Normalize(player->velocity)) * 0.01f), dt * 10);
+
 			break; 
 
 		case HARPOON_AIM:
 			p->camera->zoom = 
-				Lerp(p->camera->zoom, 1.1f, dt * 5);
+				Lerp(p->camera->zoom, CAM_ZOOM_FOCUSED, dt * 5);
 
 			break;
 
@@ -291,7 +301,7 @@ void PlayerCameraControls(Entity *player, float dt) {
 			break;
 
 		case HARPOON_RETRACT:
-			p->camera->zoom = Lerp(p->camera->zoom, 1.0f, dt);
+			p->camera->zoom = Lerp(p->camera->zoom, CAM_ZOOM_DEFAULT, dt);
 			p->camera->target = Vector2Lerp(p->camera->target, EntCenter(player), dt);
 			break;
 			
@@ -424,8 +434,10 @@ void HarpoonUpdate(Entity *player, float dt) {
 
 			p->fling_vel = Vector2Scale(player->velocity, -1.0f);
 
-			p->fling_timer += (Vector2Length(tan_vel) * 0.1f) * dt;
-			p->fling_timer = Clamp(p->fling_timer, 0, 1);
+			if(Vector2Length(player->velocity) > 5)
+				p->fling_timer += (Vector2Length(tan_vel) * 0.1f) * dt;
+
+			p->fling_timer = Clamp(p->fling_timer, 0, 2);
 
 			debug_ray_start1 = EntCenter(player);
 			debug_ray_end1 = Vector2Add(debug_ray_start1, Vector2Scale(Vector2Normalize(p->fling_vel), 999));
@@ -435,7 +447,7 @@ void HarpoonUpdate(Entity *player, float dt) {
 
 		float dir_dot = Vector2DotProduct(pull_dir, Vector2Normalize(player->velocity));
 
-		float harpoon_dist = Vector2Distance(EntCenter(player), p->harpoon_pos);
+			float harpoon_dist = Vector2Distance(EntCenter(player), p->harpoon_pos);
 
 		bool pull = (
 			dir_dot < 0.0f &&
@@ -664,8 +676,9 @@ void HarpoonReel(Entity *player, float dt) {
 	p->rope->segment_dist *= 0.99f;
 	//p->rope->nodes[ROPE_TAIL].flags &= ~NODE_PINNED;
 	//p->harpoon_pos = EntCenter(fish);
-	p->harpoon_pos = Vector2Add(fish->position, p->harpoon_offset);
-	RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], p->harpoon_pos);
+	
+	//p->harpoon_pos = Vector2Add(fish->position, p->harpoon_offset);
+	//RopeNodeSetPos(&p->rope->nodes[ROPE_TAIL], p->harpoon_pos);
 
 	if(p->rope->segment_dist < 1) 
 		p->rope->iterations = 128;
@@ -683,9 +696,9 @@ void HarpoonReel(Entity *player, float dt) {
 
 	Vector2 new_center = p->rope->nodes[ROPE_TAIL].pos_curr; 
 	Vector2 new_pos = Vector2Subtract(new_center, fish->center_offset);
-	//fish->position = new_pos;
+	fish->position = new_pos;
 
-	fish->velocity = Vector2Add(fish->velocity, Vector2Scale(ftop, 1000 * dt));
+	//fish->velocity = Vector2Add(fish->velocity, Vector2Scale(ftop, 1000 * dt));
 
 	if(Vector2Distance(EntCenter(fish), EntCenter(player)) <= player->radius * 1.6f + (Vector2Length(fish->velocity) * dt)) {
 		p->ex_flags &= ~HARPOON_ACTIVE;
@@ -716,7 +729,7 @@ void PlayerApplyFling(Entity *player, Entity *ent, float dt) {
 	Vector2 to_ent = Vector2Subtract(EntCenter(ent), EntCenter(player));
 	to_ent = Vector2Normalize(to_ent);
 
-	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, (25 - p->fling_timer) * dt));	
-	player->velocity = Vector2Add(player->velocity, Vector2Scale(p->fling_vel, (1.0f - p->fling_timer) * dt));
+	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, (35 - p->fling_timer * 2) * dt));	
+	player->velocity = Vector2Add(player->velocity, Vector2Scale(p->fling_vel, (1.0f - (p->fling_timer * 1.75f)) * dt));
 }
 

@@ -211,10 +211,12 @@ void RopeDraw(Rope *rope) {
 	for(uint8_t i = rope->start_id; i < ROPE_TAIL; i++) {
 		if(rope->nodes[i].flags & NODE_SKIP_DRAW) continue;
 
-		Vector2 p0 = rope->nodes[i].pos_curr;
+		Vector2 p0 = rope->nodes[i].pos_prev;
 		Vector2 p1 = rope->nodes[i + 1].pos_curr;
 
 		float dist = Vector2Distance(p0, p1);
+
+		//DrawCircleV(p0, 6, SKYBLUE);
 
 		if(dist > rope->segment_dist) {
 			float step = 4;
