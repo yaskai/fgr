@@ -729,7 +729,7 @@ void PlayerApplyFling(Entity *player, Entity *ent, float dt) {
 	Vector2 to_ent = Vector2Subtract(EntCenter(ent), EntCenter(player));
 	to_ent = Vector2Normalize(to_ent);
 
-	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, (35 - p->fling_timer * 2) * dt));	
+	player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, (55 - p->fling_timer * 2) * dt));	
 	player->velocity = Vector2Add(player->velocity, Vector2Scale(p->fling_vel, (1.0f - (p->fling_timer * 1.75f)) * dt));
 }
 
