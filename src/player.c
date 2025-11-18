@@ -198,7 +198,16 @@ void PlayerInput(Entity *player, float dt) {
 
 			if(IsKeyPressed(KEY_X) && p->harpoon_hit_ent->type == ENT_ASTEROID) {
 				p->harpoon_state = HARPOON_NONE;
+
 				p->ex_flags &= ~HARPOON_ACTIVE;
+
+				AsteroidData *a = p->harpoon_hit_ent->data;
+
+				if(a->angle_vel != 0) {
+					p->ex_flags |= PLR_FLING;
+					//p->fling_timer = p->harpoon_hit_ent->radius * 0.001f;
+					p->fling_timer = 1;
+				}
 			}
 
 			//p->camera->zoom = Lerp(p->camera->zoom, 1 - (p->rope->stretch * 0.0001f), dt * 10);
@@ -266,6 +275,22 @@ void PlayerPhysicsFreeFloat(Entity *player, float dt) {
 		player->velocity = Vector2Subtract(player->velocity, Vector2Scale(player->velocity, 0.1f * dt));
 
 	PlayerCameraControls(player, dt);
+	
+	if(p->ex_flags & PLR_FLING) {
+		Entity *ent = p->harpoon_hit_ent;
+
+		if(!ent) return;
+
+		Vector2 to_ent = Vector2Subtract(EntCenter(ent), EntCenter(player));
+		to_ent = Vector2Normalize(to_ent);
+
+		player->velocity = Vector2Add(player->velocity, Vector2Scale(to_ent, 0.5f));
+
+		p->fling_timer -= dt;
+		if(p->fling_timer < 0) {
+			p->ex_flags &= ~PLR_FLING;
+		}
+	}
 }
 
 void PlayerCameraControls(Entity *player, float dt) {
